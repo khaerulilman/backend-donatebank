@@ -5,16 +5,8 @@ const { verifyToken } = require("../middlewares/auth");
 const router = express.Router();
 
 // Public routes
-router.get(
-  "/",
-  verifyToken,
-  programsController.getAllPrograms.bind(programsController)
-);
-router.get(
-  "/:id",
-  verifyToken,
-  programsController.getProgramById.bind(programsController)
-);
+router.get("/", programsController.getAllPrograms.bind(programsController));
+router.get("/:id", programsController.getProgramById.bind(programsController));
 
 // Protected routes - require authentication
 router.post(
