@@ -4,16 +4,9 @@ const { verifyToken } = require("../middlewares/auth"); // Use destructuring to 
 
 const router = express.Router();
 
-router.get(
-  "/",
-  verifyToken,
-  aboutUsController.getAllAboutUs.bind(aboutUsController)
-);
-router.get(
-  "/:id",
-  verifyToken,
-  aboutUsController.getAboutUsById.bind(aboutUsController)
-);
+router.get("/", aboutUsController.getAllAboutUs.bind(aboutUsController));
+router.get("/:id", aboutUsController.getAboutUsById.bind(aboutUsController));
+
 router.post(
   "/",
   verifyToken,
