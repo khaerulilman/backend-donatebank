@@ -30,11 +30,36 @@ model AboutUs {
 }
 
 model Programs {
-  id         Int      @id @default(autoincrement())
-  contentType String
-  content    String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  imageUrl    String?
+  imageId     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@map("programs")
+}
+
+model OurPartner {
+  id        Int      @id @default(autoincrement())
+  name      String
+  imageUrl  String?
+  imageId   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("our_partners")
+}
+
+model imageSlider {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  imageUrl    String?
+  imageId     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("image_sliders")
 }

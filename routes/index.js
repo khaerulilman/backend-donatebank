@@ -9,5 +9,7 @@ const router = express.Router();
 router.use("/", authRoutes);
 router.use("/content/aboutus", aboutUsRoutes);
 router.use("/content/programs", programsRoutes);
+router.use("/content/ourpartners", require("./ourpartnerRoutes"));
+router.use("/content/imageslider", require("./imagesliderRoutes"));
 
 module.exports = router;

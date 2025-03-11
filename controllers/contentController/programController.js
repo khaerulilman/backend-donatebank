@@ -1,3 +1,4 @@
+// backend/controllers/contentEdit/programsController.js
 const ProgramsService = require("../../services/contentEdit/programsService");
 const programsService = new ProgramsService();
 
@@ -36,17 +37,19 @@ class ProgramsController {
   // Create new Program entry
   async createProgram(req, res) {
     try {
-      const { contentType, content } = req.body;
+      const { title, description } = req.body;
+      const file = req.file; // This comes from Multer
 
-      if (!contentType || !content) {
+      if (!title || !description) {
         return res
           .status(400)
-          .json({ error: "Content type and content are required" });
+          .json({ error: "Title and description are required" });
       }
 
       const newProgram = await programsService.createProgram(
-        contentType,
-        content
+        title,
+        description,
+        file
       );
       res.status(201).json(newProgram);
     } catch (error) {
@@ -60,7 +63,8 @@ class ProgramsController {
   async updateProgram(req, res) {
     try {
       const { id } = req.params;
-      const { contentType, content } = req.body;
+      const { title, description } = req.body;
+      const file = req.file; // This comes from Multer
 
       const existingProgram = await programsService.getProgramById(Number(id));
 
@@ -70,8 +74,9 @@ class ProgramsController {
 
       const updatedProgram = await programsService.updateProgram(
         Number(id),
-        contentType || existingProgram.contentType,
-        content || existingProgram.content
+        title || existingProgram.title,
+        description || existingProgram.description,
+        file
       );
 
       res.status(200).json(updatedProgram);
