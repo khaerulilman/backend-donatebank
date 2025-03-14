@@ -1,5 +1,5 @@
 // backend/controllers/contentEdit/aboutUsController.js
-const AboutUsService = require("../../services/contentEdit/aboutUsService");
+const AboutUsService = require("../../services/contentEdit/aboutusService");
 const aboutUsService = new AboutUsService();
 
 class AboutUsController {
