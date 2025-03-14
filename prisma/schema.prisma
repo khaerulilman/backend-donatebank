@@ -20,11 +20,13 @@ model Users {
 }
 
 model AboutUs {
-  id         Int      @id @default(autoincrement())
-  contentType String
-  content    String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id          Int     @id @default(autoincrement())
+  nama        String  
+  imageUrl    String?  
+  description String?
+  imageId     String? 
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@map("aboutus")
 }

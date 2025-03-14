@@ -1,4 +1,5 @@
-const AboutUsService = require("../../services/contentEdit/aboutusService");
+// backend/controllers/contentEdit/aboutUsController.js
+const AboutUsService = require("../../services/contentEdit/aboutUsService");
 const aboutUsService = new AboutUsService();
 
 class AboutUsController {
@@ -22,37 +23,36 @@ class AboutUsController {
       const aboutUs = await aboutUsService.getAboutUsById(Number(id));
 
       if (!aboutUs) {
-        return res.status(404).json({ error: "AboutUs entry not found" });
+        return res.status(404).json({ error: "AboutUs not found" });
       }
 
       res.status(200).json(aboutUs);
     } catch (error) {
-      res.status(500).json({
-        error: "Failed to fetch AboutUs entry",
-        details: error.message,
-      });
+      res
+        .status(500)
+        .json({ error: "Failed to fetch AboutUs", details: error.message });
     }
   }
 
   // Create new AboutUs entry
   async createAboutUs(req, res) {
     try {
-      const { contentType, content } = req.body;
+      const { nama, description } = req.body;
+      const file = req.file; // This comes from Multer
 
-      if (!contentType || !content) {
-        return res
-          .status(400)
-          .json({ error: "Content type and content are required" });
+      if (!nama) {
+        return res.status(400).json({ error: "Name is required" });
       }
 
       const newAboutUs = await aboutUsService.createAboutUs(
-        contentType,
-        content
+        nama,
+        description,
+        file
       );
       res.status(201).json(newAboutUs);
     } catch (error) {
       res.status(500).json({
-        error: "Failed to create AboutUs entry",
+        error: "Failed to create AboutUs",
         details: error.message,
       });
     }
@@ -62,24 +62,26 @@ class AboutUsController {
   async updateAboutUs(req, res) {
     try {
       const { id } = req.params;
-      const { contentType, content } = req.body;
+      const { nama, description } = req.body;
+      const file = req.file; // This comes from Multer
 
       const existingAboutUs = await aboutUsService.getAboutUsById(Number(id));
 
       if (!existingAboutUs) {
-        return res.status(404).json({ error: "AboutUs entry not found" });
+        return res.status(404).json({ error: "AboutUs not found" });
       }
 
       const updatedAboutUs = await aboutUsService.updateAboutUs(
         Number(id),
-        contentType || existingAboutUs.contentType,
-        content || existingAboutUs.content
+        nama || existingAboutUs.nama,
+        description || existingAboutUs.description,
+        file
       );
 
       res.status(200).json(updatedAboutUs);
     } catch (error) {
       res.status(500).json({
-        error: "Failed to update AboutUs entry",
+        error: "Failed to update AboutUs",
         details: error.message,
       });
     }
@@ -93,14 +95,14 @@ class AboutUsController {
       const existingAboutUs = await aboutUsService.getAboutUsById(Number(id));
 
       if (!existingAboutUs) {
-        return res.status(404).json({ error: "AboutUs entry not found" });
+        return res.status(404).json({ error: "AboutUs not found" });
       }
 
       await aboutUsService.deleteAboutUs(Number(id));
-      res.status(200).json({ message: "AboutUs entry deleted successfully" });
+      res.status(200).json({ message: "AboutUs deleted successfully" });
     } catch (error) {
       res.status(500).json({
-        error: "Failed to delete AboutUs entry",
+        error: "Failed to delete AboutUs",
         details: error.message,
       });
     }
