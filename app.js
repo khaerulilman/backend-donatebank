@@ -1,21 +1,39 @@
+// Import packages
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const cookieParser = require("cookie-parser");
 const { connectDB } = require("./config/db");
 const routes = require("./routes");
 const errorHandler = require("./middlewares/errorHandler");
-const { sessionMiddleware } = require("./middlewares/auth");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
-app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+// CORS configuration
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl requests)
+    if (!origin) return callback(null, true);
+
+    // Allow all localhost origins regardless of port
+    if (origin.startsWith("http://localhost:")) {
+      return callback(null, true);
+    }
+
+    // Add any other domains you want to whitelist
+    callback(null, true); // Allow all origins temporarily (you may want to restrict this in production)
+  },
+  credentials: true, // Allow cookies and authentication headers
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+};
+
+// Apply CORS configuration
+app.use(cors(corsOptions));
+
+// Other middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
-app.use(sessionMiddleware);
 
 // Routes
 app.use("/v1", routes);
