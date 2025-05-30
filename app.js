@@ -1,64 +1,77 @@
-// Import packages
-require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+const bodyParser = require("body-parser");
+const transactionController = require("./controllers/contentController/transactionController");
+const ourPartnerController = require("./controllers/contentController/ourPartnerController");
+const midtransPolling = require("./midtransPolling");
 const { connectDB } = require("./config/db");
-const routes = require("./routes");
-const errorHandler = require("./middlewares/errorHandler");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// CORS configuration
-const corsOptions = {
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps, curl requests)
-    if (!origin) return callback(null, true);
+const allowedOrigins = ["http://localhost:5173", "http://localhost:5174"];
 
-    // Allow all localhost origins regardless of port
-    if (origin.startsWith("http://localhost:")) {
-      return callback(null, true);
-    }
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true); // allow requests with no origin (like Postman)
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, origin); // kirim origin yang valid sesuai request
+      } else {
+        return callback(new Error("Not allowed by CORS"));
+      }
+    },
+  })
+);
 
-    // Add any other domains you want to whitelist
-    callback(null, true); // Allow all origins temporarily (you may want to restrict this in production)
-  },
-  credentials: true, // Allow cookies and authentication headers
-  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
-};
-
-// Apply CORS configuration
-app.use(cors(corsOptions));
-
-// Other middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
-app.use("/v1", routes);
-
-// Root route
 app.get("/", (req, res) => {
-  res.json({ message: "Welcome to the Node.js Prisma API" });
+  res.json({ message: "Welcome to DonateBank API" });
 });
 
-// Error handling middleware
-app.use(errorHandler);
+app.post("/v1/content/transaction", transactionController.createTransaction);
+app.get("/v1/content/transaction", transactionController.getTransactions);
+app.post(
+  "/v1/content/transaction/notification",
+  bodyParser.raw({ type: "application/json" }),
+  transactionController.handleNotification
+);
 
-// Start server
+app.post("/v1/content/ourpartners", ourPartnerController.createOurPartner);
+app.get("/v1/content/ourpartners", ourPartnerController.getAllOurPartners);
+
+// 404 handler
+app.use((req, res, next) => {
+  res.status(404).json({ error: "Not Found" });
+});
+
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error("Unhandled error:", err.message);
+  if (err.message === "Not allowed by CORS") {
+    return res.status(403).json({ error: "CORS policy: Access denied" });
+  }
+  res.status(500).json({ error: "Internal Server Error" });
+});
+
+// Server init
 const startServer = async () => {
   try {
     await connectDB();
+    console.log("✅ Database connected");
+
+    midtransPolling.start();
+
     app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
+      console.log(`🚀 Server running on http://localhost:${PORT}`);
     });
   } catch (error) {
-    console.error("Failed to start server:", error);
+    console.error("❌ Failed to start server:", error);
     process.exit(1);
   }
 };
 
 startServer();
-
-module.exports = app;
